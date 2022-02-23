@@ -17,7 +17,7 @@ logo;
 beachball;
 prompt;
 message;
-entry;
+dialog;
 
 
 fun rotate_beachball(i) {
@@ -41,7 +41,7 @@ fun init() {
     Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
     Window.SetBackgroundBottomColour(0.0, 0.0, 0.0);
 
-    // Display logo as Plymouth sprite
+    // Display logo
     logo.image = Image("asahi.png");
     logo.sprite = Sprite(logo.image);
     logo.x = ((width / 2) - (logo.image.GetWidth() / 2));
@@ -60,24 +60,6 @@ fun init() {
     beachball.angle = 0;
     beachball.speed = 52;
 
-    // Set up sprites for on-screen messages and dialog boxes
-    info = SpriteNew();
-    entry.image = Image("text_box.png");
-    entry.sprite = Sprite(entry.image);
-    // Use position of beachball for text entry
-    entry.sprite.SetPosition(beachball.x, beachball.y, 1000);
-
-    prompt = SpriteNew();
-    prompt.SetPosition(beachball.x, (beachball.y + 40), 1000);
-
-    dialog.entry = entry;
-    dialog.message = prompt;
-    dialog.bullet_image = ImageNew("bullet.png");
-    dialog.visible = 0;
-
-    message = Sprite(); // This is for non-interactive messages
-
-    diplay_prompt(0);
 }
 
 
@@ -85,11 +67,11 @@ fun display_prompt(vis) {
     // Make dialog prompt visible
     dialog.visible = vis;
 
-    dialog.entry.sprite.SetOpacity(vis);
-    dialog.prompt.SetOpacity(vis);
+    tbox.sprite.SetOpacity(vis);
+    prompt.sprite.SetOpacity(vis);
 
-    for (i=0; dialog.bullet[i]; i++) {
-        dialog.bullet[i].sprite.SetOpacity(vis);
+    for (i=0; tbox.bullet[i]; i++) {
+        tbox.bullet[i].sprite.SetOpacity(vis);
     }
 }
 
@@ -115,30 +97,37 @@ fun password_prompt(text) {
     display_prompt(1);
 
     beachball.sprite.SetOpacity(0);
-    dialog.message.SetImage(Image.Text(text, 0.75, 0.75, 0.75));
+    prompt.image = Image.Text(text, 1, 1, 1, "center");
+    prompt.sprite = Sprite(prompt.image);
+    prompt.sprite.SetX((width / 2) - (dialog.image.GetWidth() / 2));
+    prompt.sprite.SetY(beachball.y - 80)
 
-    if (bullets > 0) {
-        dialog.message.SetOpacity(0);
-    }
+    tbox.image = Image("tbox.png");
+    tbox.bullet_image = Image("bullet.png");
+    tbox.sprite = Sprite(tbox.image);
+    tbox.x = ((width / 2) - (tbox.image.GetWidth() / 2));
+    tbox.sprite.SetPosition(tbox.x, (beachball.y - 60), 1001);
 
-    for (i=0; dialog.bullet[i] || i<bullets; i++) {
-        if (! dialog.bullet[i]) {
-            dialog.bullet[i].sprite = SpriteNew();
-            dialog.bullet[i].sprite.SetImage(dialog.bullet_image);
-            dialog.bullet[i].x = dialog.entry.sprite.GetX() + i * dialog.bullet_image.GetWidth() + dialog.entry.image.GetWidth() * 0.03;
-            dialog.bullet[i].y = dialog.entry.y + dialog.entry.image.GetHeight() / 2 - dialog.bullet_image.GetHeight() / 2;
-            dialog.bullet[i].z = dialog.entry.sprite.GetZ() + 1;
-            dialog.bullet[i].sprite.SetPosition(dialog.bullet[i].x, dialog.bullet[i].y, dialog.bullet[i].z);
+    tbox.sprite.SetPosition
+
+    for (i=0; tbox.bullet[i] || i<bullets; i++) {
+        if (! tbox.bullet[i]) {
+            tbox.bullet[i].sprite = SpriteNew();
+            tbox.bullet[i].sprite.SetImage(tbox.bullet_image);
+            tbox.bullet[i].x = tbox.sprite.GetX() + i * tbox.bullet_image.GetWidth() + tbox.image.GetWidth() * 0.03;
+            tbox.bullet[i].y = tbox.sprite.GetY + tbox.image.GetHeight() / 2 - tbox.bullet_image.GetHeight() / 2;
+            tbox.bullet[i].z = tbox.sprite.GetZ() + 1;
+            tbox.bullet[i].sprite.SetPosition(tbox.bullet[i].x, tbox.bullet[i].y, tbox.bullet[i].z);
         }
 
         if (i < bullets) {
-            dialog.bullet[i].sprite.SetOpacity(1);
+            tbox.bullet[i].sprite.SetOpacity(1);
         } else {
-            dialog.bullet[i].sprite.SetOpacity(0);
+            tbox.bullet[i].sprite.SetOpacity(0);
         }
 
-        if (dialog.bullet[i].x - dialog.entry.sprite.GetX() >= dialog.entry.image.GetWidth() * 0.97) {
-            dialog.bullet[i].sprite.SetOpacity(0);
+        if (tbox.bullet[i].x - tbox.sprite.GetX() >= tbox.image.GetWidth() * 0.97) {
+            tbox.bullet[i].sprite.SetOpacity(0);
         }
     }
 }
@@ -146,6 +135,7 @@ fun password_prompt(text) {
 
 fun show_message(text) {
     message.text = Image.Text(text, 1, 1, 1, "center");
+    message.sprite = Sprite(message.text);
     message.sprite.SetImage(message.text);
     message.x = ((width / 2) - (message.text.GetWidth() / 2));
 
@@ -171,11 +161,3 @@ Plymouth.SetDisplayPasswordFunction(password_prompt);
 Plymouth.SetMessageFunction(show_message);
 Plymouth.SetQuitFunction(quit_cb);
 Plymouth.SetUpdateStatusFunction(show_message);
-
-
-
-
-
-
-
-
