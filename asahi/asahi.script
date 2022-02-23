@@ -24,17 +24,18 @@ fun rotate_beachball(i) {
     i = Math.Int(i); // Plymouth needs to convert to int for some reason
 
     if (! BBRotated[i]) {
-        BBRotated[i] = beachball.image.Rotate((Math.Pi * 2 * i) / beachball.imagecount);
+        BBRotated[i] = beachball.image.Rotate((Math.Pi * 2 * i) / beachball.speed);
     }
 
     return BBRotated[i];
 
 }
 
+
 fun init() {
     // Get display properties
     width = Window.GetWidth();
-    height = Window.GetHeight;
+    height = Window.GetHeight();
 
     // Set background colour to black
     Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
@@ -43,19 +44,21 @@ fun init() {
     // Display logo as Plymouth sprite
     logo.image = Image("asahi.png");
     logo.sprite = Sprite(logo.image);
-    logo.sprite.SetX((width / 2) - (logo.image.GetWidth() / 2);
-    logo.sprite.SetX((height / 2) - (logo.image.GetHeight() / 2);
+    logo.x = ((width / 2) - (logo.image.GetWidth() / 2));
+    logo.y = ((height / 2) - (logo.image.GetHeight() / 2));
+    logo.sprite.SetPosition(logo.x, logo.y, 1000);
     logo.sprite.SetOpacity(1);
 
     // Initialise Apple spinner
     beachball.image = ImageNew("beachball.png");
     beachball.sprite = SpriteNew();
     beachball.sprite.SetImage(rotate_beachball(0));
-    beachball.sprite.SetX = (width - (entry.image.GetWidth() / 2));
-    beachball.sprite.SetY = (height + entry.image.GetHeight() * 0.7);
+    beachball.x = ((width / 2) - (beachball.image.GetWidth() / 2));
+    beachball.y = ((height/ 2) + (beachball.image.GetHeight()) + (logo.y * 0.65));
+    beachball.sprite.SetPosition(beachball.x, beachball.y, 1000);
     beachball.i = 0;
     beachball.angle = 0;
-    beachball.imagecount = 64;
+    beachball.speed = 52;
 
     // Set up sprites for on-screen messages and dialog boxes
     info = SpriteNew();
@@ -99,7 +102,7 @@ fun disp_refresh() {
         beachball.sprite.SetOpacity(0);
     } else {
         beachball.i += 1;
-        beachball.i %= beachball.imagecount;
+        beachball.i %= beachball.speed;
         beachball.sprite.SetImage(rotate_beachball(beachball.i));
         beachball.sprite.SetOpacity(1);
     }
@@ -158,17 +161,15 @@ fun quit_cb() {
 
 
 // Declare callbacks to Plymouth API
+
+
+init();
+
 Plymouth.SetRefreshFunction(disp_refresh);
 Plymouth.SetDisplayNormalFunction(return_normal);
 Plymouth.SetDisplayPasswordFunction(password_prompt);
 Plymouth.SetMessageFunction(show_message);
 Plymouth.SetQuitFunction(quit_cb);
-
-init();
-
-
-
-
 
 
 
