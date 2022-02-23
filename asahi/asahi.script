@@ -6,7 +6,7 @@
  * replacing the Apple logo.
  *
  *
- * 
+ *
  * (C) 2022 James Calligeros
  */
 
@@ -50,7 +50,7 @@ fun init() {
     logo.sprite.SetOpacity(1);
 
     // Initialise Apple spinner
-    beachball.image = ImageNew("beachball.png");
+    beachball.image = ImageNew("beachball3.png");
     beachball.sprite = SpriteNew();
     beachball.sprite.SetImage(rotate_beachball(0));
     beachball.x = ((width / 2) - (beachball.image.GetWidth() / 2));
@@ -64,21 +64,18 @@ fun init() {
     info = SpriteNew();
     entry.image = Image("text_box.png");
     entry.sprite = Sprite(entry.image);
-    entry.x = (width - (entry.image.GetWidth() / 2));
-    entry.y = (height + entry.image.GetHeight() * 0.7);
-    entry.sprite.SetX(entry.x);
-    entry.sprite.SetY(entry.y);
-    entry.sprite.SetZ(1000);
+    // Use position of beachball for text entry
+    entry.sprite.SetPosition(beachball.x, beachball.y, 1000);
 
     prompt = SpriteNew();
-    prompt.SetPosition((entry.x + 15), entry.y, 1000);
+    prompt.SetPosition(beachball.x, (beachball.y + 40), 1000);
 
     dialog.entry = entry;
     dialog.message = prompt;
     dialog.bullet_image = ImageNew("bullet.png");
     dialog.visible = 0;
 
-    message = SpriteNew(); // This is for non-interactive messages
+    message = Sprite(); // This is for non-interactive messages
 
     diplay_prompt(0);
 }
@@ -115,7 +112,7 @@ fun return_normal() {
 
 fun password_prompt(text) {
     // There has to be a better way of doing this
-    show_dialog(1);
+    display_prompt(1);
 
     beachball.sprite.SetOpacity(0);
     dialog.message.SetImage(Image.Text(text, 0.75, 0.75, 0.75));
@@ -128,9 +125,9 @@ fun password_prompt(text) {
         if (! dialog.bullet[i]) {
             dialog.bullet[i].sprite = SpriteNew();
             dialog.bullet[i].sprite.SetImage(dialog.bullet_image);
-            dialog.bullet[i].x = dialog.entry.x + i * dialog.bullet_image.GetWidth() + dialog.entry.image.GetWidth() * 0.03;
+            dialog.bullet[i].x = dialog.entry.sprite.GetX() + i * dialog.bullet_image.GetWidth() + dialog.entry.image.GetWidth() * 0.03;
             dialog.bullet[i].y = dialog.entry.y + dialog.entry.image.GetHeight() / 2 - dialog.bullet_image.GetHeight() / 2;
-            dialog.bullet[i].z = dialog.entry.z + 1;
+            dialog.bullet[i].z = dialog.entry.sprite.GetZ() + 1;
             dialog.bullet[i].sprite.SetPosition(dialog.bullet[i].x, dialog.bullet[i].y, dialog.bullet[i].z);
         }
 
@@ -140,7 +137,7 @@ fun password_prompt(text) {
             dialog.bullet[i].sprite.SetOpacity(0);
         }
 
-        if (dialog.bullet[i].x - dialog.entry.x >= dialog.entry.image.GetWidth() * 0.97) {
+        if (dialog.bullet[i].x - dialog.entry.sprite.GetX() >= dialog.entry.image.GetWidth() * 0.97) {
             dialog.bullet[i].sprite.SetOpacity(0);
         }
     }
@@ -148,10 +145,12 @@ fun password_prompt(text) {
 
 
 fun show_message(text) {
-    text_image = Image.Text(text, 0.75, 0.75, 0.75);
-    message.SetImage(text_image);
-    message.SetX((width / 2) - (message.GetWidth() / 2));
-    message.SetX((height / 2) - (message.GetHeight() / 2));
+    message.text = Image.Text(text, 1, 1, 1, "center");
+    message.sprite.SetImage(message.text);
+    message.x = ((width / 2) - (message.text.GetWidth() / 2));
+
+    // Display message above the beachball
+    message.sprite.SetPosition((message.x), (beachball.y - 80), 1001);
 }
 
 
@@ -160,17 +159,18 @@ fun quit_cb() {
 }
 
 
-// Declare callbacks to Plymouth API
 
 
+// Run the splash screen
 init();
 
+// Declare callbacks to Plymouth API
 Plymouth.SetRefreshFunction(disp_refresh);
 Plymouth.SetDisplayNormalFunction(return_normal);
 Plymouth.SetDisplayPasswordFunction(password_prompt);
 Plymouth.SetMessageFunction(show_message);
 Plymouth.SetQuitFunction(quit_cb);
-
+Plymouth.SetUpdateStatusFunction(show_message);
 
 
 
