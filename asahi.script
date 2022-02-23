@@ -1,0 +1,180 @@
+/* SPDX-License-Identifier: MIT */
+
+/* Asahi Linux Plymouth Theme
+ *
+ * This theme emulates the macOS boot splash, with the Asahi logo
+ * replacing the Apple logo.
+ *
+ *
+ * 
+ * (C) 2021 The Asahi Linux Contributors
+ */
+
+// Init globals
+width;
+height;
+logo;
+beachball;
+prompt;
+message;
+entry;
+
+
+fun rotate_beachball(i) {
+    i = Math.Int(i); // Plymouth needs to convert to int for some reason
+
+    if (! BBRotated[i]) {
+        BBRotated[i] = beachball.image.Rotate((Math.Pi * 2 * i) / beachball.imagecount);
+    }
+
+    return BBRotated[i];
+
+}
+
+fun init() {
+    // Get display properties
+    width = Window.GetWidth();
+    height = Window.GetHeight;
+
+    // Set background colour to black
+    Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
+    Window.SetBackgroundBottomColour(0.0, 0.0, 0.0);
+
+    // Display logo as Plymouth sprite
+    logo.image = Image("asahi.png");
+    logo.sprite = Sprite(logo.image);
+    logo.sprite.SetX((width / 2) - (logo.image.GetWidth() / 2);
+    logo.sprite.SetX((height / 2) - (logo.image.GetHeight() / 2);
+    logo.sprite.SetOpacity(1);
+
+    // Initialise Apple spinner
+    beachball.image = ImageNew("beachball.png");
+    beachball.sprite = SpriteNew();
+    beachball.sprite.SetImage(rotate_beachball(0));
+    beachball.sprite.SetX = (width - (entry.image.GetWidth() / 2));
+    beachball.sprite.SetY = (height + entry.image.GetHeight() * 0.7);
+    beachball.i = 0;
+    beachball.angle = 0;
+    beachball.imagecount = 64;
+
+    // Set up sprites for on-screen messages and dialog boxes
+    info = SpriteNew();
+    entry.image = Image("text_box.png");
+    entry.sprite = Sprite(entry.image);
+    entry.x = (width - (entry.image.GetWidth() / 2));
+    entry.y = (height + entry.image.GetHeight() * 0.7);
+    entry.sprite.SetX(entry.x);
+    entry.sprite.SetY(entry.y);
+    entry.sprite.SetZ(1000);
+
+    prompt = SpriteNew();
+    prompt.SetPosition((entry.x + 15), entry.y, 1000);
+
+    dialog.entry = entry;
+    dialog.message = prompt;
+    dialog.bullet_image = ImageNew("bullet.png");
+    dialog.visible = 0;
+
+    message = SpriteNew(); // This is for non-interactive messages
+
+    diplay_prompt(0);
+}
+
+
+fun display_prompt(vis) {
+    // Make dialog prompt visible
+    dialog.visible = vis;
+
+    dialog.entry.sprite.SetOpacity(vis);
+    dialog.prompt.SetOpacity(vis);
+
+    for (i=0; dialog.bullet[i]; i++) {
+        dialog.bullet[i].sprite.SetOpacity(vis);
+    }
+}
+
+
+fun disp_refresh() {
+    if (dialog.visible) {
+        beachball.sprite.SetOpacity(0);
+    } else {
+        beachball.i += 1;
+        beachball.i %= beachball.imagecount;
+        beachball.sprite.SetImage(rotate_beachball(beachball.i));
+        beachball.sprite.SetOpacity(1);
+    }
+}
+
+fun return_normal() {
+    display_prompt(0);
+}
+
+
+fun password_prompt(text) {
+    // There has to be a better way of doing this
+    show_dialog(1);
+
+    beachball.sprite.SetOpacity(0);
+    dialog.message.SetImage(Image.Text(text, 0.75, 0.75, 0.75));
+
+    if (bullets > 0) {
+        dialog.message.SetOpacity(0);
+    }
+
+    for (i=0; dialog.bullet[i] || i<bullets; i++) {
+        if (! dialog.bullet[i]) {
+            dialog.bullet[i].sprite = SpriteNew();
+            dialog.bullet[i].sprite.SetImage(dialog.bullet_image);
+            dialog.bullet[i].x = dialog.entry.x + i * dialog.bullet_image.GetWidth() + dialog.entry.image.GetWidth() * 0.03;
+            dialog.bullet[i].y = dialog.entry.y + dialog.entry.image.GetHeight() / 2 - dialog.bullet_image.GetHeight() / 2;
+            dialog.bullet[i].z = dialog.entry.z + 1;
+            dialog.bullet[i].sprite.SetPosition(dialog.bullet[i].x, dialog.bullet[i].y, dialog.bullet[i].z);
+        }
+
+        if (i < bullets) {
+            dialog.bullet[i].sprite.SetOpacity(1);
+        } else {
+            dialog.bullet[i].sprite.SetOpacity(0);
+        }
+
+        if (dialog.bullet[i].x - dialog.entry.x >= dialog.entry.image.GetWidth() * 0.97) {
+            dialog.bullet[i].sprite.SetOpacity(0);
+        }
+    }
+}
+
+
+fun show_message(text) {
+    text_image = Image.Text(text, 0.75, 0.75, 0.75);
+    message.SetImage(text_image);
+    message.SetX((width / 2) - (message.GetWidth() / 2));
+    message.SetX((height / 2) - (message.GetHeight() / 2));
+}
+
+
+fun quit_cb() {
+    beachball.sprite.SetOpacity(0);
+}
+
+
+// Declare callbacks to Plymouth API
+Plymouth.SetRefreshFunction(disp_refresh);
+Plymouth.SetDisplayNormalFunction(return_normal);
+Plymouth.SetDisplayPasswordFunction(password_prompt);
+Plymouth.SetMessageFunction(show_message);
+Plymouth.SetQuitFunction(quit_cb);
+
+init();
+
+
+
+
+
+
+
+
+
+
+
+
+
