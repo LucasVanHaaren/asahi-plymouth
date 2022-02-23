@@ -15,10 +15,11 @@ width;
 height;
 logo;
 beachball;
-prompt;
 message;
-dialog;
-
+tbox;
+pw_dialog_active = 0;
+bullet_image;
+prompt;
 
 fun rotate_beachball(i) {
     i = Math.Int(i); // Plymouth needs to convert to int for some reason
@@ -50,7 +51,7 @@ fun init() {
     logo.sprite.SetOpacity(1);
 
     // Initialise Apple spinner
-    beachball.image = ImageNew("beachball3.png");
+    beachball.image = ImageNew("beachball.png");
     beachball.sprite = SpriteNew();
     beachball.sprite.SetImage(rotate_beachball(0));
     beachball.x = ((width / 2) - (beachball.image.GetWidth() / 2));
@@ -70,8 +71,8 @@ fun display_prompt(vis) {
     tbox.sprite.SetOpacity(vis);
     prompt.sprite.SetOpacity(vis);
 
-    for (i=0; tbox.bullet[i]; i++) {
-        tbox.bullet[i].sprite.SetOpacity(vis);
+    for (i=0; bullet[i]; i++) {
+        bullet[i].sprite.SetOpacity(vis);
     }
 }
 
@@ -89,49 +90,62 @@ fun disp_refresh() {
 
 fun return_normal() {
     display_prompt(0);
-}
-
-
-fun password_prompt(text) {
-    // There has to be a better way of doing this
-    display_prompt(1);
-
-    beachball.sprite.SetOpacity(0);
-    prompt.image = Image.Text(text, 1, 1, 1, "center");
-    prompt.sprite = Sprite(prompt.image);
-    prompt.sprite.SetX((width / 2) - (dialog.image.GetWidth() / 2));
-    prompt.sprite.SetY(beachball.y - 80)
-
-    tbox.image = Image("tbox.png");
-    tbox.bullet_image = Image("bullet.png");
-    tbox.sprite = Sprite(tbox.image);
-    tbox.x = ((width / 2) - (tbox.image.GetWidth() / 2));
-    tbox.sprite.SetPosition(tbox.x, (beachball.y - 60), 1001);
-
-    tbox.sprite.SetPosition
-
-    for (i=0; tbox.bullet[i] || i<bullets; i++) {
-        if (! tbox.bullet[i]) {
-            tbox.bullet[i].sprite = SpriteNew();
-            tbox.bullet[i].sprite.SetImage(tbox.bullet_image);
-            tbox.bullet[i].x = tbox.sprite.GetX() + i * tbox.bullet_image.GetWidth() + tbox.image.GetWidth() * 0.03;
-            tbox.bullet[i].y = tbox.sprite.GetY + tbox.image.GetHeight() / 2 - tbox.bullet_image.GetHeight() / 2;
-            tbox.bullet[i].z = tbox.sprite.GetZ() + 1;
-            tbox.bullet[i].sprite.SetPosition(tbox.bullet[i].x, tbox.bullet[i].y, tbox.bullet[i].z);
-        }
-
-        if (i < bullets) {
-            tbox.bullet[i].sprite.SetOpacity(1);
-        } else {
-            tbox.bullet[i].sprite.SetOpacity(0);
-        }
-
-        if (tbox.bullet[i].x - tbox.sprite.GetX() >= tbox.image.GetWidth() * 0.97) {
-            tbox.bullet[i].sprite.SetOpacity(0);
-        }
+    if (pw_dialog_active == 1) {
+        pw_dialog_active = 0;
     }
 }
 
+
+// fun setup_pw_dialog(text) {
+//
+//     prompt.image = Image.Text(text, 1, 1, 1, "center");
+//     prompt.sprite = Sprite(prompt.image);
+//     prompt.x((width / 2) - (dialog.image.GetWidth() / 2));
+//     prompt.y(beachball.y - 80);
+//     prompt.sprite.SetPosition(prompt.x, prompt.y, 1001);
+//
+//     tbox.image = Image("tbox.png");
+//     bullet_image = Image("bullet.png");
+//     tbox.sprite = Sprite(tbox.image);
+//     tbox.x = ((width / 2) - (tbox.image.GetWidth() / 2));
+//     tbox.y = (beachball.y + 60);
+//     tbox.z = 1000
+//     tbox.sprite.SetPosition(tbox.x, tbox.y, 1000);
+// }
+
+
+
+// fun password_prompt(text, bullets) {
+//     // There has to be a better way of doing this
+//     if (message.visible == 1) {
+//         message.sprite.SetOpacity(0);
+//     }
+//
+//     beachball.sprite.SetOpacity(0);
+//
+//     if (pw_dialog_active == 0) {
+//         setup_pw_dialog(text);
+//     }
+//
+//     display_prompt(1);
+//
+//     for (i=0; bullet[i] || i<bullets; i++) {
+//         if (! bullet[i]) {
+//             bullet[i].sprite = Sprite(bullet_image);
+//             bullet[i].x = tbox.x + i * bullet_image.GetWidth();
+//             bullet[i].y = tbox.y + tbox.image.GetHeight() / 2 - bullet_image.GetHeight() / 2;
+//             bullet[i].z = tbox.z + 1;
+//             bullet[i].sprite.SetPosition(bullet[i].x, bullet[i].y, bullet[i].z);
+//         }
+//
+//         if (i < bullets) {
+//             bullet[i].sprite.SetOpacity(1);
+//         } else {
+//             bullet[i].sprite.SetOpacity(0);
+//         }
+//     }
+// }
+// Plymouth.SetDisplayPasswordFunction(password_prompt);
 
 fun show_message(text) {
     message.text = Image.Text(text, 1, 1, 1, "center");
@@ -141,6 +155,8 @@ fun show_message(text) {
 
     // Display message above the beachball
     message.sprite.SetPosition((message.x), (beachball.y - 80), 1001);
+    message.sprite.SetOpacity(1);
+    message.visible = 1;
 }
 
 
@@ -157,7 +173,7 @@ init();
 // Declare callbacks to Plymouth API
 Plymouth.SetRefreshFunction(disp_refresh);
 Plymouth.SetDisplayNormalFunction(return_normal);
-Plymouth.SetDisplayPasswordFunction(password_prompt);
+
 Plymouth.SetMessageFunction(show_message);
 Plymouth.SetQuitFunction(quit_cb);
 Plymouth.SetUpdateStatusFunction(show_message);
