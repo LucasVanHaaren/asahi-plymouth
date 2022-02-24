@@ -51,6 +51,7 @@ fun disp_refresh() {
         bar.sprite.SetOpacity(0);
         fill.sprite.SetOpacity(0);
         show_message("Updating system. Do not turn off your computer.");
+    }
 }
 Plymouth.SetRefreshFunction(disp_refresh);
 
@@ -77,7 +78,13 @@ Plymouth.SetUpdateStatusFunction(show_message);
 
 
 fun set_progress(elapsed, progress){
-    slider.x += (slider.image.GetWidth() * progress);
+    /* Since the slider.x starts as bar.x, we can use the latter
+     * as a reference point to calculate how far along the progress
+     * bar the slider should be at any given moment. This should also
+     * work for update progress, but I haven't figured out how to hook
+     * the progress bar up to that yet, so we still hide it during updates.
+     */
+    slider.x = (bar.x + (slider.image.GetWidth() * progress));
     slider.sprite.SetX(slider.x);
 }
 Plymouth.SetBootProgressFunction(set_progress);
