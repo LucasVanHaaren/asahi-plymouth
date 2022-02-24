@@ -41,14 +41,16 @@ fun rotate_ball(i) {
 
 
 fun disp_refresh() {
-    if (dialog.visible) {
-        ball.sprite.SetOpacity(0);
-    } else {
-        ball.i += 1;
-        ball.i %= ball.speed;
-        ball.sprite.SetImage(rotate_ball(ball.i));
-        ball.sprite.SetOpacity(1);
-    }
+    ball.i += 1;
+    ball.i %= ball.speed;
+    ball.sprite.SetImage(rotate_ball(ball.i));
+    ball.sprite.SetOpacity(1);
+
+    /* Hide progress bar if we are doing something other than boot */
+    if (Plymouth.GetMode() != "boot") {
+        bar.sprite.SetOpacity(0);
+        fill.sprite.SetOpacity(0);
+        show_message("Updating system. Do not turn off your computer.");
 }
 Plymouth.SetRefreshFunction(disp_refresh);
 
