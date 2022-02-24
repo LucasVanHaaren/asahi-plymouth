@@ -76,11 +76,12 @@ Plymouth.SetMessageFunction(show_message);
 Plymouth.SetUpdateStatusFunction(show_message);
 
 
-fun set_progress(elapsed, progress) {
+fun set_progress(elapsed, progress){
     slider.x += (slider.image.GetWidth() * progress);
-    slider.sprite.SetPosition(slider.x, bar.y, 1001);
+    slider.sprite.SetX(slider.x);
 }
 Plymouth.SetBootProgressFunction(set_progress);
+
 
 fun init() {
     /* Set background colour to black */
