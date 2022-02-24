@@ -66,7 +66,7 @@ fun show_message(text) {
     message.sprite = Sprite(message.text);
     message.sprite.SetImage(message.text);
     message.x = ((width / 2) - (message.text.GetWidth() / 2));
-    message.y = (bar.y * 1.05);
+    message.y = (bar.y * 1.02);
 
     /* Display message below progress bar */
     message.sprite.SetPosition(message.x, message.y, 1005);
