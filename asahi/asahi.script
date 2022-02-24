@@ -45,13 +45,6 @@ fun disp_refresh() {
     ball.i %= ball.speed;
     ball.sprite.SetImage(rotate_ball(ball.i));
     ball.sprite.SetOpacity(1);
-
-    /* Hide progress bar if we are doing something other than boot */
-    if (Plymouth.GetMode() != "boot") {
-        bar.sprite.SetOpacity(0);
-        fill.sprite.SetOpacity(0);
-        show_message("Updating system. Do not turn off your computer.");
-    }
 }
 Plymouth.SetRefreshFunction(disp_refresh);
 
@@ -114,29 +107,28 @@ fun init() {
     ball.angle = 0;
     ball.speed = 54;
 
-    /* This is probably the dumbest way to do this.
-    *
-    * We create a rectangular sprite the same colour as the background,
-    * place it over the bar fill but *under* the bar outline, and then
-    * shift it to the right of the screen so that the bar appears to be
-    * filling up.
-    */
-    bar.image = Image("progbar.png");
-    bar.sprite = Sprite(bar.image);
-    bar.x = ((width / 2) - (bar.image.GetWidth() / 2));
-    bar.y = ((height / 2) + (bar.image.GetHeight()) + (logo.y * 0.25));
-    bar.sprite.SetPosition(bar.x, bar.y, 1002);
+    /* Create boot status progress bar */
+    if (Plymouth.GetMode() == "boot") {
+        /* We create a rectangular sprite the same colour as the background,
+         * place it over the bar fill but *under* the bar outline, and then
+         * shift it to the right of the screen so that the bar appears to be
+         * filling up.
+         */
+        bar.image = Image("progbar.png");
+        bar.sprite = Sprite(bar.image);
+        bar.x = ((width / 2) - (bar.image.GetWidth() / 2));
+        bar.y = ((height / 2) + (bar.image.GetHeight()) + (logo.y * 0.25));
+        bar.sprite.SetPosition(bar.x, bar.y, 1002);
 
-    fill.image = Image("progfill.png");
-    fill.sprite = Sprite(fill.image);
-    fill.sprite.SetPosition(bar.x, bar.y, 1000);
+        fill.image = Image("progfill.png");
+        fill.sprite = Sprite(fill.image);
+        fill.sprite.SetPosition(bar.x, bar.y, 1000);
 
-    slider.image = Image("progblack.png");
-    slider.sprite = Sprite(slider.image);
-    slider.x = bar.x; /* We need to move this sprite alone */
-    slider.sprite.SetPosition(bar.x, bar.y, 1001);
-
-
+        slider.image = Image("progblack.png");
+        slider.sprite = Sprite(slider.image);
+        slider.x = bar.x; /* We need to move this sprite alone */
+        slider.sprite.SetPosition(bar.x, bar.y, 1001);
+    }
 }
 
 
