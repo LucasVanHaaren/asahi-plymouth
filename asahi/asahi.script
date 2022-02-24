@@ -10,22 +10,29 @@
  * (C) 2022 James Calligeros
  */
 
-// Init globals
-width;
-height;
-logo;
-beachball;
-message;
-tbox;
-pw_dialog_active = 0;
-bullet_image;
-prompt;
 
-fun rotate_beachball(i) {
-    i = Math.Int(i); // Plymouth needs to convert to int for some reason
+
+
+/* Set up some global stuff everything needs access to
+ *
+ * We position stuff relative to the width and height of the screen,
+ * as well as the position of the logo and spinner, so we need global
+ * access to those "objects".
+ */
+width = Window.GetWidth();
+height = Window.GetHeight();
+logo;
+ball;
+bar;
+fill;
+slider;
+message;
+
+fun rotate_ball(i) {
+    i = Math.Int(i); /* Plymouth needs to convert to int for some reason */
 
     if (! BBRotated[i]) {
-        BBRotated[i] = beachball.image.Rotate((Math.Pi * 2 * i) / beachball.speed);
+        BBRotated[i] = ball.image.Rotate((Math.Pi * 2 * i) / ball.speed);
     }
 
     return BBRotated[i];
@@ -33,142 +40,94 @@ fun rotate_beachball(i) {
 }
 
 
-fun init() {
-    // Get display properties
-    width = Window.GetWidth();
-    height = Window.GetHeight();
-
-    // Set background colour to black
-    Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
-    Window.SetBackgroundBottomColour(0.0, 0.0, 0.0);
-
-    // Display logo
-    logo.image = Image("asahi.png");
-    logo.sprite = Sprite(logo.image);
-    logo.x = ((width / 2) - (logo.image.GetWidth() / 2));
-    logo.y = ((height / 2) - (logo.image.GetHeight() / 2));
-    logo.sprite.SetPosition(logo.x, logo.y, 1000);
-    logo.sprite.SetOpacity(1);
-
-    // Initialise Apple spinner
-    beachball.image = ImageNew("beachball.png");
-    beachball.sprite = SpriteNew();
-    beachball.sprite.SetImage(rotate_beachball(0));
-    beachball.x = ((width / 2) - (beachball.image.GetWidth() / 2));
-    beachball.y = ((height/ 2) + (beachball.image.GetHeight()) + (logo.y * 0.65));
-    beachball.sprite.SetPosition(beachball.x, beachball.y, 1000);
-    beachball.i = 0;
-    beachball.angle = 0;
-    beachball.speed = 52;
-
-}
-
-
-fun display_prompt(vis) {
-    // Make dialog prompt visible
-    dialog.visible = vis;
-
-    tbox.sprite.SetOpacity(vis);
-    prompt.sprite.SetOpacity(vis);
-
-    for (i=0; bullet[i]; i++) {
-        bullet[i].sprite.SetOpacity(vis);
-    }
-}
-
-
 fun disp_refresh() {
     if (dialog.visible) {
-        beachball.sprite.SetOpacity(0);
+        ball.sprite.SetOpacity(0);
     } else {
-        beachball.i += 1;
-        beachball.i %= beachball.speed;
-        beachball.sprite.SetImage(rotate_beachball(beachball.i));
-        beachball.sprite.SetOpacity(1);
+        ball.i += 1;
+        ball.i %= ball.speed;
+        ball.sprite.SetImage(rotate_ball(ball.i));
+        ball.sprite.SetOpacity(1);
     }
 }
 Plymouth.SetRefreshFunction(disp_refresh);
 
 
-fun return_normal() {
-    display_prompt(0);
-    if (pw_dialog_active == 1) {
-        pw_dialog_active = 0;
-    }
+fun quit_cb() {
+    ball.sprite.SetOpacity(0);
 }
-Plymouth.SetDisplayNormalFunction(return_normal);
+Plymouth.SetQuitFunction(quit_cb);
 
-// fun setup_pw_dialog(text) {
-//
-//     prompt.image = Image.Text(text, 1, 1, 1, "center");
-//     prompt.sprite = Sprite(prompt.image);
-//     prompt.x((width / 2) - (dialog.image.GetWidth() / 2));
-//     prompt.y(beachball.y - 80);
-//     prompt.sprite.SetPosition(prompt.x, prompt.y, 1001);
-//
-//     tbox.image = Image("tbox.png");
-//     bullet_image = Image("bullet.png");
-//     tbox.sprite = Sprite(tbox.image);
-//     tbox.x = ((width / 2) - (tbox.image.GetWidth() / 2));
-//     tbox.y = (beachball.y + 60);
-//     tbox.z = 1000
-//     tbox.sprite.SetPosition(tbox.x, tbox.y, 1000);
-// }
-
-
-
-// fun password_prompt(text, bullets) {
-//     // There has to be a better way of doing this
-//     if (message.visible == 1) {
-//         message.sprite.SetOpacity(0);
-//     }
-//
-//     beachball.sprite.SetOpacity(0);
-//
-//     if (pw_dialog_active == 0) {
-//         setup_pw_dialog(text);
-//     }
-//
-//     display_prompt(1);
-//
-//     for (i=0; bullet[i] || i<bullets; i++) {
-//         if (! bullet[i]) {
-//             bullet[i].sprite = Sprite(bullet_image);
-//             bullet[i].x = tbox.x + i * bullet_image.GetWidth();
-//             bullet[i].y = tbox.y + tbox.image.GetHeight() / 2 - bullet_image.GetHeight() / 2;
-//             bullet[i].z = tbox.z + 1;
-//             bullet[i].sprite.SetPosition(bullet[i].x, bullet[i].y, bullet[i].z);
-//         }
-//
-//         if (i < bullets) {
-//             bullet[i].sprite.SetOpacity(1);
-//         } else {
-//             bullet[i].sprite.SetOpacity(0);
-//         }
-//     }
-// }
-// Plymouth.SetDisplayPasswordFunction(password_prompt);
 
 fun show_message(text) {
     message.text = Image.Text(text, 1, 1, 1, "center");
     message.sprite = Sprite(message.text);
     message.sprite.SetImage(message.text);
     message.x = ((width / 2) - (message.text.GetWidth() / 2));
+    message.y = (bar.y * 1.05);
 
-    // Display message above the beachball
-    message.sprite.SetPosition((message.x), (beachball.y - 80), 1001);
+    /* Display message below progress bar */
+    message.sprite.SetPosition(message.x, message.y, 1005);
     message.sprite.SetOpacity(1);
-    message.visible = 1;
 }
 Plymouth.SetMessageFunction(show_message);
 Plymouth.SetUpdateStatusFunction(show_message);
 
 
-fun quit_cb() {
-    beachball.sprite.SetOpacity(0);
+fun set_progress(elapsed, progress) {
+    slider.x += (slider.image.GetWidth() * progress);
+    slider.sprite.SetPosition(slider.x, bar.y, 1001);
 }
-Plymouth.SetQuitFunction(quit_cb);
+Plymouth.SetBootProgressFunction(set_progress);
 
+fun init() {
+    /* Set background colour to black */
+    Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
+    Window.SetBackgroundBottomColour(0.0, 0.0, 0.0);
+
+    logo.image = Image("asahi.png");
+    logo.image = logo.image.Scale(logo.image.GetWidth() * 0.5, logo.image.GetHeight() * 0.5);
+    logo.sprite = Sprite(logo.image);
+    logo.x = ((width / 2) - (logo.image.GetWidth() / 2));
+    logo.y = ((height / 2) - (logo.image.GetHeight() / 2));
+    logo.sprite.SetPosition(logo.x, logo.y, 1000);
+    logo.sprite.SetOpacity(1);
+
+    /* Initialise Apple beachball*/
+    ball.image = Image("beachball.png");
+    ball.image = ball.image.Scale(ball.image.GetWidth() * 0.5, ball.image.GetHeight() * 0.5);
+    ball.sprite = Sprite(rotate_ball(0));
+    ball.x = ((width / 2) - (ball.image.GetWidth() / 2));
+    ball.y = ((height/ 2) + (ball.image.GetHeight()) + (logo.y * 0.65));
+    ball.sprite.SetPosition(ball.x, ball.y, 1000);
+    ball.i = 0;
+    ball.angle = 0;
+    ball.speed = 54;
+
+    /* This is probably the dumbest way to do this.
+    *
+    * We create a rectangular sprite the same colour as the background,
+    * place it over the bar fill but *under* the bar outline, and then
+    * shift it to the right of the screen so that the bar appears to be
+    * filling up.
+    */
+    bar.image = Image("progbar.png");
+    bar.sprite = Sprite(bar.image);
+    bar.x = ((width / 2) - (bar.image.GetWidth() / 2));
+    bar.y = ((height / 2) + (bar.image.GetHeight()) + (logo.y * 0.25));
+    bar.sprite.SetPosition(bar.x, bar.y, 1002);
+
+    fill.image = Image("progfill.png");
+    fill.sprite = Sprite(fill.image);
+    fill.sprite.SetPosition(bar.x, bar.y, 1000);
+
+    slider.image = Image("progblack.png");
+    slider.sprite = Sprite(slider.image);
+    slider.x = bar.x; /* We need to move this sprite alone */
+    slider.sprite.SetPosition(bar.x, bar.y, 1001);
+
+
+}
 
 
 // Run the splash screen
