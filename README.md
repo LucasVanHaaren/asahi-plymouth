@@ -18,7 +18,6 @@ modes and parameters you can test.
 
 ## What works
 * The Asahi Linux logo shows up
-* The beachball spins
 * The progress bar fills up while booting
 * Boot time messages appear below the progress bar
 
@@ -28,6 +27,3 @@ Currently, Plymouth will fall back to the tty for user input.
 
 ## Attributions
 * The Asahi Linux logo was created by <a href="https://soundflora.tokyo/">soundflora*</a> and <a href="https://github.com/marcan/">Hector Martin</a>. It is available under the CC BY-SA 4.0 license.
-
-* The Apple-like beachball is available for free for non-commercial use from
-<a href="https://pngwing.com">PNGWing</a>.
